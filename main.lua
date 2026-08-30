@@ -9,6 +9,7 @@ local SpeedValue = 22
 local AutoEvadeDistance = false
 local AutoSteal = false
 local EvadeRange = 12
+local ESPEnabled = false
 
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
@@ -34,30 +35,39 @@ KeySec:NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
         KeyVerified = true
         StarterGui:SetCore("SendNotification", {Title = "Success!", Text = "Key ត្រឹមត្រូវ! មុខងារ VIP បើករួច។", Duration = 3})
 
-        -- ==================== TAB 2: MAIN FEATURES ====================
+        -- MAIN TAB
         local MainTab = Window:NewTab("Main Features")
         
-        -- Speed Section
         local SpeedSec = MainTab:NewSection("🛡️ Legit Speed (Anti-Admin/Bypass)")
-        
-        SpeedSec:NewToggle("Enable Legit Speed", "បើករត់លឿនបែបធម្មជាតិ មិនឲ្យគេដឹង", function(state)
+        SpeedSec:NewToggle("Enable Legit Speed", "បើករត់លឿនបែបធម្មជាតិ", function(state)
             FastSpeed = state
             if not state then
                 local char = getAliveCharacter()
                 if char then char.Humanoid.WalkSpeed = 16 end
             end
         end)
+        SpeedSec:NewSlider("Adjust Speed Level", "កំណត់ល្បឿន (20-25)", 60, 16, function(v) SpeedValue = v end)
 
-        SpeedSec:NewSlider("Adjust Speed Level", "កំណត់ល្បឿន (ណែនាំ: 20-25)", 60, 16, function(v)
-            SpeedValue = v
-        end)
-
-        -- Auto Section
         local AutoSec = MainTab:NewSection("Auto Features")
         AutoSec:NewToggle("Auto Dodge Player/Monster", "តេឡេពតគេចខ្លួន", function(state) AutoEvadeDistance = state end)
         AutoSec:NewToggle("Auto Fire Proximity Prompts", "លួចពងស្វ័យប្រវត្តិ", function(state) AutoSteal = state end)
 
-        -- ==================== TAB 3: SETTINGS ====================
+        -- VISUALS / ESP TAB
+        local VisualTab = Window:NewTab("Visuals / ESP")
+        local EspSec = VisualTab:NewSection("Player ESP (មើលធ្លុះ)")
+        
+        EspSec:NewToggle("Enable Player ESP", "មើលឃើញ Player តាមជញ្ជាំង", function(state)
+            ESPEnabled = state
+            if not state then
+                for _, p in ipairs(Players:GetPlayers()) do
+                    if p.Character and p.Character:FindFirstChild("Highlight") then
+                        p.Character.Highlight:Destroy()
+                    end
+                end
+            end
+        end)
+
+        -- SETTINGS TAB
         local ExtraTab = Window:NewTab("Player Settings")
         local ExtraSec = ExtraTab:NewSection("Jump Settings")
         ExtraSec:NewSlider("Adjust Jump Power", "កម្ពស់លោត", 150, 50, function(s)
@@ -68,15 +78,13 @@ KeySec:NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
             end
         end)
 
-        -- Background Loops
+        -- LOOPS
         task.spawn(function()
             while true do
                 task.wait(0.05)
                 if FastSpeed then
                     local char = getAliveCharacter()
-                    if char then
-                        char.Humanoid.WalkSpeed = SpeedValue
-                    end
+                    if char then char.Humanoid.WalkSpeed = SpeedValue end
                 end
             end
         end)
@@ -108,6 +116,27 @@ KeySec:NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
                 if AutoSteal then
                     for _, prompt in ipairs(workspace:GetDescendants()) do
                         if prompt:IsA("ProximityPrompt") then fireproximityprompt(prompt) end
+                    end
+                end
+            end
+        end)
+
+        -- ESP Loop
+        task.spawn(function()
+            while true do
+                task.wait(0.5)
+                if ESPEnabled then
+                    for _, p in ipairs(Players:GetPlayers()) do
+                        if p ~= LocalPlayer and p.Character then
+                            if not p.Character:FindFirstChild("Highlight") then
+                                local hl = Instance.new("Highlight")
+                                hl.Name = "Highlight"
+                                hl.FillColor = Color3.fromRGB(255, 0, 0)
+                                hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                                hl.FillTransparency = 0.5
+                                hl.Parent = p.Character
+                            end
+                        end
                     end
                 end
             end
