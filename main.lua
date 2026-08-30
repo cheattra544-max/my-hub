@@ -1,56 +1,22 @@
 local CorrectKey = "CHEATTRA-VIP-2026"
 
--- ផ្ទាំងទារ Key ងាយស្រួល និងដំណើរការ ១០០%
-local KeyInput = game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "🔑 CHEATTRA HUB",
-    Text = "សូមវាយ Key ក្នុង Chat ឬប្រើប្រអប់ខាងក្រោម",
-    Duration = 5
-})
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("🔥 Cheattra VIP Hub (Egg Steal) 🔥", "Midnight")
 
--- បង្កើត UI វាយ Key
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local TextBox = Instance.new("TextBox")
-local SubmitBtn = Instance.new("TextButton")
-local Title = Instance.new("TextLabel")
+-- ==================== TAB 1: KEY SYSTEM ====================
+local KeyTab = Window:NewTab("🔑 Key Verification")
+local KeySec = KeyTab:NewSection("Enter Your Key Below")
 
-ScreenGui.Parent = game:GetService("CoreGui")
-Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-Frame.Position = UDim2.new(0.35, 0, 0.35, 0)
-Frame.Size = UDim2.new(0, 300, 0, 150)
-Frame.Active = true
-Frame.Draggable = true
+KeySec:NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
+    if EnteredKey == CorrectKey then
+        -- ផ្ញើសារប្រាប់ថាត្រូវ Key
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Success!",
+            Text = "Key ត្រឹមត្រូវ! មុខងារ VIP ត្រូវបានបើក។",
+            Duration = 3
+        })
 
-Title.Parent = Frame
-Title.Size = UDim2.new(1, 0, 0, 35)
-Title.Text = "🔑 Cheattra Hub - Key Verification"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
-
-TextBox.Parent = Frame
-TextBox.Position = UDim2.new(0.1, 0, 0.35, 0)
-TextBox.Size = UDim2.new(0.8, 0, 0.25, 0)
-TextBox.PlaceholderText = "Paste Key Here..."
-TextBox.Text = ""
-TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextBox.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
-
-SubmitBtn.Parent = Frame
-SubmitBtn.Position = UDim2.new(0.2, 0, 0.7, 0)
-SubmitBtn.Size = UDim2.new(0.6, 0, 0.2, 0)
-SubmitBtn.Text = "SUBMIT KEY"
-SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-
-SubmitBtn.MouseButton1Click:Connect(function()
-    if TextBox.Text == CorrectKey then
-        ScreenGui:Destroy() -- បិទផ្ទាំង Key វិញ
-        
-        -- ==================== MAIN VIP HUB ====================
-        local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-        local Window = Library.CreateLib("🔥 Cheattra VIP Hub (Egg Steal Edition) 🔥", "Midnight")
-
+        -- ==================== TAB 2: MAIN FEATURES ====================
         local MainTab = Window:NewTab("Bypass & Evade")
         local SpeedSec = MainTab:NewSection("Fast Speed (២០០)")
 
@@ -100,16 +66,20 @@ SubmitBtn.MouseButton1Click:Connect(function()
             end
         end)
 
-        local ExtraSec = MainTab:NewSection("Jump Settings")
+        -- ==================== TAB 3: JUMP SETTINGS ====================
+        local ExtraTab = Window:NewTab("Settings")
+        local ExtraSec = ExtraTab:NewSection("Jump Settings")
         ExtraSec:NewSlider("Adjust Jump", "កម្ពស់លោត", 200, 50, function(s)
             game.Players.LocalPlayer.Character.Humanoid.UseJumpPower = true
             game.Players.LocalPlayer.Character.Humanoid.JumpPower = s
         end)
+
     else
-        SubmitBtn.Text = "KEY WRONG! TRY AGAIN"
-        SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-        task.wait(1.5)
-        SubmitBtn.Text = "SUBMIT KEY"
-        SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+        -- ផ្ញើសារប្រាប់ថាខុស Key
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Key Error!",
+            Text = "Key មិនត្រឹមត្រូវទេ! សូមព្យាយាមម្តងទៀត។",
+            Duration = 3
+        })
     end
 end)
