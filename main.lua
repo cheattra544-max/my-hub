@@ -1,4 +1,4 @@
-local OrionLib = loadstring(game:HttpGet(('https://githubusercontent.com')))()
+local OrionLib = loadstring(game:HttpGet("https://luarmor.net"))()
 
 local Window = OrionLib:MakeWindow({
     Name = "🔥 My Custom Hub (VIP) 🔥", 
