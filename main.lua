@@ -5,7 +5,7 @@ local Window = Library.CreateLib("🔥 Cheattra VIP Hub | Steal An Egg 🔥", "M
 
 local KeyVerified = false
 local FastSpeed = false
-local SpeedValue = 22
+local SpeedValue = 50 -- ល្បឿនកំណត់ (Default)
 local AutoEvadeDistance = false
 local AutoSteal = false
 local EvadeRange = 12
@@ -18,9 +18,7 @@ local LocalPlayer = Players.LocalPlayer
 local function getAliveCharacter()
     local char = LocalPlayer.Character
     if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChildOfClass("Humanoid") then
-        if char.Humanoid.Health > 0 then
-            return char
-        end
+        if char.Humanoid.Health > 0 then return char end
     end
     return nil
 end
@@ -35,27 +33,23 @@ KeySec:NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
         KeyVerified = true
         StarterGui:SetCore("SendNotification", {Title = "Success!", Text = "Key ត្រឹមត្រូវ! មុខងារ VIP បើករួច។", Duration = 3})
 
-        -- MAIN TAB
         local MainTab = Window:NewTab("Main Features")
+        local SpeedSec = MainTab:NewSection("⚡ Super Speed (Bypass Anti-Cheat)")
         
-        local SpeedSec = MainTab:NewSection("🛡️ Legit Speed (Anti-Admin/Bypass)")
-        SpeedSec:NewToggle("Enable Legit Speed", "បើករត់លឿនបែបធម្មជាតិ", function(state)
+        SpeedSec:NewToggle("Enable Fast Speed", "បើករត់លឿន (Bypass Anti-Cheat)", function(state)
             FastSpeed = state
-            if not state then
-                local char = getAliveCharacter()
-                if char then char.Humanoid.WalkSpeed = 16 end
-            end
         end)
-        SpeedSec:NewSlider("Adjust Speed Level", "កំណត់ល្បឿន (20-25)", 60, 16, function(v) SpeedValue = v end)
+        
+        SpeedSec:NewSlider("WalkSpeed Power", "សារ៉េល្បឿន (២០ ដល់ ១៥០)", 150, 20, function(v)
+            SpeedValue = v
+        end)
 
         local AutoSec = MainTab:NewSection("Auto Features")
         AutoSec:NewToggle("Auto Dodge Player/Monster", "តេឡេពតគេចខ្លួន", function(state) AutoEvadeDistance = state end)
         AutoSec:NewToggle("Auto Fire Proximity Prompts", "លួចពងស្វ័យប្រវត្តិ", function(state) AutoSteal = state end)
 
-        -- VISUALS / ESP TAB
         local VisualTab = Window:NewTab("Visuals / ESP")
         local EspSec = VisualTab:NewSection("Player ESP (មើលធ្លុះ)")
-        
         EspSec:NewToggle("Enable Player ESP", "មើលឃើញ Player តាមជញ្ជាំង", function(state)
             ESPEnabled = state
             if not state then
@@ -67,7 +61,6 @@ KeySec:NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
             end
         end)
 
-        -- SETTINGS TAB
         local ExtraTab = Window:NewTab("Player Settings")
         local ExtraSec = ExtraTab:NewSection("Jump Settings")
         ExtraSec:NewSlider("Adjust Jump Power", "កម្ពស់លោត", 150, 50, function(s)
@@ -78,17 +71,25 @@ KeySec:NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
             end
         end)
 
-        -- LOOPS
+        -- 1. Velocity Bypass Speed Loop (រត់លឿនពិតប្រាកដ)
         task.spawn(function()
             while true do
-                task.wait(0.05)
+                task.wait(0.01)
                 if FastSpeed then
                     local char = getAliveCharacter()
-                    if char then char.Humanoid.WalkSpeed = SpeedValue end
+                    if char then
+                        local hrp = char.HumanoidRootPart
+                        local hum = char.Humanoid
+                        if hum.MoveDirection.Magnitude > 0 then
+                            -- ប្រើ Velocity Push ដើម្បីបង្ខំឲ្យតួអង្គរត់ទៅមុខតាមល្បឿន Slider
+                            hrp.Velocity = Vector3.new(hum.MoveDirection.X * SpeedValue, hrp.Velocity.Y, hum.MoveDirection.Z * SpeedValue)
+                        end
+                    end
                 end
             end
         end)
 
+        -- 2. Proximity Evade Loop
         task.spawn(function()
             while true do
                 task.wait(0.1)
@@ -110,6 +111,7 @@ KeySec:NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
             end
         end)
 
+        -- 3. Auto Steal Loop
         task.spawn(function()
             while true do
                 task.wait(0.2)
@@ -121,7 +123,7 @@ KeySec:NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
             end
         end)
 
-        -- ESP Loop
+        -- 4. ESP Loop
         task.spawn(function()
             while true do
                 task.wait(0.5)
