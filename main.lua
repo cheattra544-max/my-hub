@@ -5,8 +5,7 @@ local Window = Library.CreateLib("🔥 Cheattra VIP Hub | Steal An Egg 🔥", "M
 
 local KeyVerified = false
 local FastSpeed = false
-local SafeSpeedMode = true -- បើក Mode សុវត្ថិភាពជាដំបូង
-local SpeedValue = 22 -- ល្បឿនធម្មជាតិ (Normal = 16)
+local SpeedValue = 22
 local AutoEvadeDistance = false
 local AutoSteal = false
 local EvadeRange = 12
@@ -35,20 +34,21 @@ KeySec:NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
         KeyVerified = true
         StarterGui:SetCore("SendNotification", {Title = "Success!", Text = "Key ត្រឹមត្រូវ! មុខងារ VIP បើករួច។", Duration = 3})
 
+        -- ==================== TAB 2: MAIN FEATURES ====================
         local MainTab = Window:NewTab("Main Features")
         
-        -- Safe Speed Section
-        local SpeedSec = MainTab:NewSection("🛡️ Safe & Legit Speed (Anti-Admin)")
+        -- Speed Section
+        local SpeedSec = MainTab:NewSection("🛡️ Legit Speed (Anti-Admin/Bypass)")
         
         SpeedSec:NewToggle("Enable Legit Speed", "បើករត់លឿនបែបធម្មជាតិ មិនឲ្យគេដឹង", function(state)
             FastSpeed = state
             if not state then
                 local char = getAliveCharacter()
-                if char then char.Humanoid.WalkSpeed = 16 end -- ត្រឡប់មកល្បឿនដើមវិញ
+                if char then char.Humanoid.WalkSpeed = 16 end
             end
         end)
 
-        SpeedSec:NewSlider("Legit Speed Level", "កំណត់ល្បឿន (ណែនាំ: 20-25)", 40, 16, function(v)
+        SpeedSec:NewSlider("Adjust Speed Level", "កំណត់ល្បឿន (ណែនាំ: 20-25)", 60, 16, function(v)
             SpeedValue = v
         end)
 
@@ -57,9 +57,10 @@ KeySec:NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
         AutoSec:NewToggle("Auto Dodge Player/Monster", "តេឡេពតគេចខ្លួន", function(state) AutoEvadeDistance = state end)
         AutoSec:NewToggle("Auto Fire Proximity Prompts", "លួចពងស្វ័យប្រវត្តិ", function(state) AutoSteal = state end)
 
+        -- ==================== TAB 3: SETTINGS ====================
         local ExtraTab = Window:NewTab("Player Settings")
         local ExtraSec = ExtraTab:NewSection("Jump Settings")
-        ExtraSec:NewSlider("Adjust Jump Power", "កម្ពស់លោត", 120, 50, function(s)
+        ExtraSec:NewSlider("Adjust Jump Power", "កម្ពស់លោត", 150, 50, function(s)
             local char = getAliveCharacter()
             if char then
                 char.Humanoid.UseJumpPower = true
@@ -67,21 +68,19 @@ KeySec:NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
             end
         end)
 
-        -- 1. Anti-Admin Safe Speed Loop
+        -- Background Loops
         task.spawn(function()
             while true do
-                task.wait(0.1)
+                task.wait(0.05)
                 if FastSpeed then
                     local char = getAliveCharacter()
                     if char then
-                        -- កំណត់ WalkSpeed ផ្ទាល់ តែរក្សាស្ថេរភាព Anti-Cheat Reset
                         char.Humanoid.WalkSpeed = SpeedValue
                     end
                 end
             end
         end)
 
-        -- 2. Proximity Evade Loop
         task.spawn(function()
             while true do
                 task.wait(0.1)
@@ -103,7 +102,6 @@ KeySec:NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
             end
         end)
 
-        -- 3. Auto Steal Loop
         task.spawn(function()
             while true do
                 task.wait(0.2)
