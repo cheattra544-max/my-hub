@@ -6,18 +6,13 @@ local Window = Library.CreateLib("🔥 Cheattra VIP Hub | Steal An Egg 🔥", "M
 local KeyVerified = false
 local FastSpeed = false
 local SpeedValue = 50
-local AutoStealEgg = false
-local MonsterGodmode = false
-local ESPEnabled = false
 local AutoTreadmill = false
-local Treadmill5x = false
-local SafeFarmStep = false
-local UltraFast100B = false
+local AutoWalkPhysical = false
 
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 local LocalPlayer = Players.LocalPlayer
 
 local function getAliveCharacter()
@@ -31,187 +26,60 @@ local function getAliveCharacter()
     return nil, nil, nil
 end
 
--- Cache Remotes ទុកជាមុនដើម្បីកាត់បន្ថយការ Lag
-local SpeedRemotes = {}
-local StealRemotes = {}
-
-local function CacheGameRemotes()
-    SpeedRemotes = {}
-    StealRemotes = {}
-    for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
-        if v:IsA("RemoteEvent") then
-            local name = v.Name:lower()
-            if name:find("speed") or name:find("add") or name:find("train") or name:find("walk") or name:find("step") or name:find("treadmill") or name:find("gain") then
-                table.insert(SpeedRemotes, v)
-            end
-            if name:find("steal") or name:find("egg") or name:find("take") or name:find("grab") or name:find("collect") then
-                table.insert(StealRemotes, v)
-            end
-        end
-    end
-end
-task.spawn(CacheGameRemotes)
-
 local KeyTab = Window:NewTab("🔑 Key Verification")
 KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
     if KeyVerified then return end
 
     if EnteredKey == CorrectKey then
         KeyVerified = true
-        StarterGui:SetCore("SendNotification", {Title = "Success!", Text = "Key ត្រឹមត្រូវ! មុខងារ VIP បើករួច។", Duration = 3})
+        StarterGui:SetCore("SendNotification", {Title = "Success!", Text = "Key ត្រឹមត្រូវ!", Duration = 3})
 
-        -- TAB 1: EGG & PROTECTION
-        local ProtectTab = Window:NewTab("🥚 Steal & Protection")
-        local ProtectSec = ProtectTab:NewSection("🛡️ True Monster Godmode")
-        
-        ProtectSec:NewToggle("Auto Steal Egg (លួចពងស្វ័យប្រវត្តិ)", "លួចពងសត្វតាម Remote & Prompt", function(state)
-            AutoStealEgg = state
-        end)
+        local FarmTab = Window:NewTab("🌾 Physical Farm")
+        local FarmSec = FarmTab:NewSection("🏃 Movement & Treadmill Engine")
 
-        ProtectSec:NewToggle("Monster Godmode (មេវាយមិនត្រូវ 100%)", "បង្កក Hitbox/បិទ Touch Interest របស់មេ", function(state)
-            MonsterGodmode = state
-        end)
-
-        -- TAB 2: FARM FEATURES
-        local FarmTab = Window:NewTab("🌾 Farm Features")
-        local FarmSec = FarmTab:NewSection("🏋️ Speed / Step Farm Engine")
-        
-        FarmSec:NewToggle("⚡ ULTRA SPEED FARM (រុញទៅ 100B)", "កើន Speed/Step រលូនមិនគាំង (No-Lag)", function(state)
-            UltraFast100B = state
-        end)
-
-        FarmSec:NewToggle("Auto Treadmill (រត់លើម៉ាស៊ីន)", "ដើររត់លើម៉ាស៊ីនរត់ស្វ័យប្រវត្តិ", function(state)
+        FarmSec:NewToggle("Auto Treadmill Mode", "រត់លើម៉ាស៊ីនស្វ័យប្រវត្តិ", function(state)
             AutoTreadmill = state
         end)
 
-        FarmSec:NewToggle("Treadmill 5x Boost (គុណ៥ លើម៉ាស៊ីនរត់)", "បង្កើនល្បឿន និង Step គុណនឹង ៥", function(state)
-            Treadmill5x = state
+        FarmSec:NewToggle("Auto Walk Circle (ដើររវល់កើន Step)", "ឱ្យតួអង្គដើរវិលជុំវិញដើម្បីកើន Step", function(state)
+            AutoWalkPhysical = state
         end)
 
-        -- TAB 3: MAIN FEATURES
         local MainTab = Window:NewTab("Main Features")
-        local SpeedSec = MainTab:NewSection("⚡ Super Speed (No-Crash & Bypass)")
+        local SpeedSec = MainTab:NewSection("⚡ WalkSpeed Boost")
         
         SpeedSec:NewToggle("Enable Fast Speed", "បើករត់លឿន", function(state) FastSpeed = state end)
-        SpeedSec:NewTextBox("Set Speed Number", "វាយលេខល្បឿន (ឧ: 50, 100)", function(txt)
+        SpeedSec:NewTextBox("Set Speed Number", "វាយលេខល្បឿន", function(txt)
             local num = tonumber(txt)
             if num then SpeedValue = num end
         end)
 
-        -- TAB 4: VISUALS
-        local VisualTab = Window:NewTab("Visuals / ESP")
-        VisualTab:NewSection("Player ESP"):NewToggle("Enable Player ESP", "មើលឃើញ Player តាមជញ្ជាំង", function(state)
-            ESPEnabled = state
-            if not state then
-                for _, p in ipairs(Players:GetPlayers()) do
-                    if p.Character and p.Character:FindFirstChild("Highlight") then
-                        p.Character.Highlight:Destroy()
+        -- 1. Physical Auto Walk Engine (Simulating Inputs)
+        task.spawn(function()
+            while true do
+                task.wait(0.1)
+                if AutoWalkPhysical then
+                    local char, hrp, hum = getAliveCharacter()
+                    if char and hrp and hum then
+                        hum:Move(Vector3.new(math.sin(tick() * 3), 0, math.cos(tick() * 3)), true)
                     end
                 end
             end
         end)
 
-        -- TAB 5: SETTINGS
-        local ExtraTab = Window:NewTab("Player Settings")
-        ExtraTab:NewSection("Jump Settings"):NewTextBox("Set Jump Power", "វាយកម្ពស់លោត", function(txt)
-            local num = tonumber(txt)
-            local char, _, hum = getAliveCharacter()
-            if num and char then
-                hum.UseJumpPower = true
-                hum.JumpPower = num
-            end
-        end)
-
-        -- 1. Movement Speed Engine
+        -- 2. Treadmill Physics Velocity
         RunService.Heartbeat:Connect(function()
+            if AutoTreadmill then
+                local char, hrp, hum = getAliveCharacter()
+                if char and hrp and hum then
+                    hrp.AssemblyLinearVelocity = hrp.CFrame.LookVector * 50
+                end
+            end
             if FastSpeed then
                 local char, hrp, hum = getAliveCharacter()
                 if char and hrp and hum and hum.MoveDirection.Magnitude > 0 then
                     local moveDir = hum.MoveDirection
                     hrp.AssemblyLinearVelocity = Vector3.new(moveDir.X * SpeedValue, hrp.AssemblyLinearVelocity.Y, moveDir.Z * SpeedValue)
-                end
-            end
-        end)
-
-        -- 2. True Monster Godmode Engine
-        RunService.Stepped:Connect(function()
-            if MonsterGodmode then
-                for _, v in ipairs(workspace:GetDescendants()) do
-                    if v:IsA("TouchTransmitter") or v:IsA("TouchInterest") then
-                        local parentName = v.Parent and v.Parent.Name:lower() or ""
-                        local grandParentName = v.Parent and v.Parent.Parent and v.Parent.Parent.Name:lower() or ""
-                        if parentName:find("monster") or parentName:find("boss") or parentName:find("hitbox") or grandParentName:find("monster") or grandParentName:find("boss") then
-                            v:Destroy()
-                        end
-                    end
-                end
-            end
-        end)
-
-        -- 3. Auto Steal Egg Engine (Optimized)
-        task.spawn(function()
-            while true do
-                task.wait(0.2)
-                if AutoStealEgg then
-                    for _, remote in ipairs(StealRemotes) do
-                        pcall(function() remote:FireServer() end)
-                    end
-                    for _, prompt in ipairs(workspace:GetDescendants()) do
-                        if prompt:IsA("ProximityPrompt") then
-                            pcall(function()
-                                prompt.HoldDuration = 0
-                                prompt.MaxActivationDistance = 9999
-                                fireproximityprompt(prompt)
-                            end)
-                        end
-                    end
-                end
-            end
-        end)
-
-        -- 4. ULTRA SPEED FARM ENGINE (Optimized No-Lag)
-        task.spawn(function()
-            while true do
-                task.wait(0.1)
-                if UltraFast100B then
-                    for _, remote in ipairs(SpeedRemotes) do
-                        pcall(function()
-                            remote:FireServer()
-                        end)
-                    end
-                end
-            end
-        end)
-
-        -- 5. Treadmill Engine
-        task.spawn(function()
-            while true do
-                task.wait(0.1)
-                if AutoTreadmill then
-                    local char, hrp, hum = getAliveCharacter()
-                    if char and hrp and hum then
-                        local speedMult = Treadmill5x and 100 or 30
-                        hrp.AssemblyLinearVelocity = hrp.CFrame.LookVector * speedMult
-                    end
-                end
-            end
-        end)
-
-        -- 6. ESP Loop
-        task.spawn(function()
-            while true do
-                task.wait(1)
-                if ESPEnabled then
-                    for _, p in ipairs(Players:GetPlayers()) do
-                        if p ~= LocalPlayer and p.Character and not p.Character:FindFirstChild("Highlight") then
-                            local hl = Instance.new("Highlight")
-                            hl.Name = "Highlight"
-                            hl.FillColor = Color3.fromRGB(255, 0, 0)
-                            hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                            hl.FillTransparency = 0.5
-                            hl.Parent = p.Character
-                        end
-                    end
                 end
             end
         end)
