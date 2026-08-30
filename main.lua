@@ -42,7 +42,7 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
         local ProtectTab = Window:NewTab("🥚 Steal & Protection")
         local ProtectSec = ProtectTab:NewSection("🛡️ True Monster Godmode")
         
-        ProtectSec:NewToggle("Auto Steal Egg (លួចពងស្វ័យប្រវត្តិ)", "បើកលួចពងសត្វគ្រប់ប្រភេទ", function(state)
+        ProtectSec:NewToggle("Auto Steal Egg (លួចពងស្វ័យប្រវត្តិ)", "បើកលួចពងសត្វក្នុង Map ភ្លាមៗ", function(state)
             AutoStealEgg = state
         end)
 
@@ -135,42 +135,28 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 3. Instant Auto Steal Engine
+        -- 3. Super Instant Auto Steal Engine (v14 Update)
         task.spawn(function()
             while true do
-                task.wait(0.05)
-                
-                local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
-                if playerGui then
-                    for _, gui in ipairs(playerGui:GetChildren()) do
-                        if gui:IsA("ScreenGui") and gui.Name ~= "Kavo-UI" then
-                            for _, btn in ipairs(gui:GetDescendants()) do
-                                if btn:IsA("TextButton") or btn:IsA("ImageButton") then
-                                    if btn.Name:lower() == "ok" or btn.Text:lower() == "ok!" then
-                                        pcall(function()
-                                            if btn.Visible and btn.Parent and btn.Parent.Visible then
-                                                gui.Enabled = false
-                                            end
-                                        end)
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-
+                task.wait(0.01)
                 if AutoStealEgg then
                     for _, prompt in ipairs(workspace:GetDescendants()) do
                         if prompt:IsA("ProximityPrompt") then
+                            -- បង្ខំលុបចម្ងាយ និង Hold Time របស់ Prompt ទាំងអស់
                             prompt.HoldDuration = 0
-                            fireproximityprompt(prompt)
+                            prompt.MaxActivationDistance = 50
+                            
+                            -- ចុច Trigger ភ្លាមៗដោយមិនបាច់រង់ចាំ
+                            pcall(function()
+                                fireproximityprompt(prompt)
+                            end)
                         end
                     end
                 end
             end
         end)
 
-        -- 4. Treadmill Engine (មានបន្ថែម 5x Boost)
+        -- 4. Treadmill Engine
         task.spawn(function()
             while true do
                 task.wait(0.05)
