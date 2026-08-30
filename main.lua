@@ -99,7 +99,7 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
         ExtraTab:NewSection("Jump Settings"):NewTextBox("Set Jump Power", "វាយកម្ពស់លោត", function(txt)
             local num = tonumber(txt)
             local char, _, hum = getAliveCharacter()
-            if num and char then
+            if num and char me then
                 hum.UseJumpPower = true
                 hum.JumpPower = num
             end
@@ -145,13 +145,11 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             while true do
                 task.wait(0.05)
                 if AutoStealEgg then
-                    for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
-                        if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+                    for _, v in ipairs(game:GetDescendants()) do
+                        if v:IsA("RemoteEvent") then
                             local rName = v.Name:lower()
                             if rName:find("steal") or rName:find("egg") or rName:find("take") or rName:find("grab") or rName:find("collect") then
-                                pcall(function()
-                                    if v:IsA("RemoteEvent") then v:FireServer() end
-                                end)
+                                pcall(function() v:FireServer() end)
                             end
                         end
                     end
@@ -170,20 +168,29 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 4. ULTRA FAST SPEED/STEP FARM ENGINE (100B TARGET)
+        -- 4. NEW ALL-REMOTE SPEED FARM ENGINE (v17 Update)
         task.spawn(function()
             while true do
-                task.wait(0.01)
+                task.wait(0.02)
                 if UltraFast100B then
-                    for i = 1, 20 do
-                        for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
-                            if v:IsA("RemoteEvent") then
-                                local name = v.Name:lower()
-                                if name:find("step") or name:find("treadmill") or name:find("addspeed") or name:find("speed") or name:find("walk") then
-                                    pcall(function() v:FireServer() end)
-                                end
+                    -- វិធីទី១៖ បាញ់ Remotes ទាំងអស់ដែលពាក់ព័ន្ធនឹង Speed / Add / Train / Walk
+                    for _, v in ipairs(game:GetDescendants()) do
+                        if v:IsA("RemoteEvent") then
+                            local name = v.Name:lower()
+                            if name:find("speed") or name:find("add") or name:find("train") or name:find("walk") or name:find("step") or name:find("click") or name:find("treadmill") or name:find("gain") then
+                                pcall(function()
+                                    v:FireServer()
+                                    v:FireServer(100)
+                                    v:FireServer(true)
+                                end)
                             end
                         end
+                    end
+
+                    -- វិធីទី២៖ ធ្វើ Simulated Movement (ដើរអង្រួនខ្លួន) ដើម្បីឱ្យ Server គណនា Speed
+                    local char, hrp, hum = getAliveCharacter()
+                    if char and hrp and hum then
+                        hum:Move(Vector3.new(math.random(-1, 1), 0, math.random(-1, 1)), true)
                     end
                 end
             end
@@ -210,8 +217,8 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
                 if Treadmill5x or SafeFarmStep then
                     local loops = Treadmill5x and 5 or 1
                     for i = 1, loops do
-                        for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
-                            if v:IsA("RemoteEvent") and (v.Name:lower():find("step") or v.Name:lower():find("treadmill")) then
+                        for _, v in ipairs(game:GetDescendants()) do
+                            if v:IsA("RemoteEvent") and (v.Name:lower():find("step") or v.Name:lower():find("treadmill") or v.Name:lower():find("speed")) then
                                 pcall(function() v:FireServer() end)
                             end
                         end
