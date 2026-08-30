@@ -1,15 +1,20 @@
-local CorrectKey = "CHEATTRA-VIP-2026" -- Key សម្រាប់លក់
+local CorrectKey = "CHEATTRA-VIP-2026"
+local EnteredKey = ""
 
--- បង្កើត UI ផ្ទៀងផ្ទាត់ Key មុននឹងបើក Hub
 local KeyLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 local KeyWindow = KeyLibrary.CreateLib("🔑 Cheattra Hub - Key System", "Midnight")
 local KeyTab = KeyWindow:NewTab("Key Verification")
 local KeySec = KeyTab:NewSection("Enter Your Key Below")
 
-KeySec:NewTextBox("Enter Key", "Paste your Key here", function(EnteredKey)
+-- ប្រអប់សម្រាប់វាយ Key
+KeySec:NewTextBox("Enter Key", "Paste your Key here", function(txt)
+    EnteredKey = txt
+end)
+
+-- ប៊ូតុងសម្រាប់ចុចផ្ទៀងផ្ទាត់ Key
+KeySec:NewButton("Submit Key (ចុចដើម្បីផ្ទៀងផ្ទាត់)", "Check Key", function()
     if EnteredKey == CorrectKey then
-        print("Key Correct!")
-        -- បិទ UI Key វិញពេលវាយត្រូវ
+        -- លុបផ្ទាំង Key System ចោល
         game:GetService("CoreGui"):FindFirstChild("KavoUI"):Destroy()
         
         -- ==================== ដំណើរការ MAIN HUB ====================
@@ -71,6 +76,11 @@ KeySec:NewTextBox("Enter Key", "Paste your Key here", function(EnteredKey)
             game.Players.LocalPlayer.Character.Humanoid.JumpPower = s
         end)
     else
-        print("Incorrect Key!")
+        -- បើវាយ Key ខុស វានឹងលោតសារប្រាប់
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Key Error!",
+            Text = "Key មិនត្រឹមត្រូវទេ! សូមពិនិត្យមើលឡើងវិញ។",
+            Duration = 3
+        })
     end
 end)
