@@ -31,6 +31,27 @@ local function getAliveCharacter()
     return nil, nil, nil
 end
 
+-- Cache Remotes ទុកជាមុនដើម្បីកាត់បន្ថយការ Lag
+local SpeedRemotes = {}
+local StealRemotes = {}
+
+local function CacheGameRemotes()
+    SpeedRemotes = {}
+    StealRemotes = {}
+    for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
+        if v:IsA("RemoteEvent") then
+            local name = v.Name:lower()
+            if name:find("speed") or name:find("add") or name:find("train") or name:find("walk") or name:find("step") or name:find("treadmill") or name:find("gain") then
+                table.insert(SpeedRemotes, v)
+            end
+            if name:find("steal") or name:find("egg") or name:find("take") or name:find("grab") or name:find("collect") then
+                table.insert(StealRemotes, v)
+            end
+        end
+    end
+end
+task.spawn(CacheGameRemotes)
+
 local KeyTab = Window:NewTab("🔑 Key Verification")
 KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & press Enter", function(EnteredKey)
     if KeyVerified then return end
@@ -55,7 +76,7 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
         local FarmTab = Window:NewTab("🌾 Farm Features")
         local FarmSec = FarmTab:NewSection("🏋️ Speed / Step Farm Engine")
         
-        FarmSec:NewToggle("⚡ ULTRA SPEED FARM (រុញទៅ 100B)", "កើន Speed/Step ក្នុងល្បឿនលឿនបំផុត", function(state)
+        FarmSec:NewToggle("⚡ ULTRA SPEED FARM (រុញទៅ 100B)", "កើន Speed/Step រលូនមិនគាំង (No-Lag)", function(state)
             UltraFast100B = state
         end)
 
@@ -65,10 +86,6 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
 
         FarmSec:NewToggle("Treadmill 5x Boost (គុណ៥ លើម៉ាស៊ីនរត់)", "បង្កើនល្បឿន និង Step គុណនឹង ៥", function(state)
             Treadmill5x = state
-        end)
-
-        FarmSec:NewToggle("Safe Step Farm (កើន Step មិន Crash)", "កើន Step លឿន និងមានសុវត្ថិភាព", function(state)
-            SafeFarmStep = state
         end)
 
         -- TAB 3: MAIN FEATURES
@@ -99,7 +116,7 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
         ExtraTab:NewSection("Jump Settings"):NewTextBox("Set Jump Power", "វាយកម្ពស់លោត", function(txt)
             local num = tonumber(txt)
             local char, _, hum = getAliveCharacter()
-            if num and char me then
+            if num and char then
                 hum.UseJumpPower = true
                 hum.JumpPower = num
             end
@@ -128,37 +145,21 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
                         end
                     end
                 end
-                
-                local char = getAliveCharacter()
-                if char then
-                    for _, part in ipairs(char:GetChildren()) do
-                        if part:IsA("BasePart") then
-                            part.CanTouch = false
-                        end
-                    end
-                end
             end
         end)
 
-        -- 3. Advanced Auto Steal Egg Engine
+        -- 3. Auto Steal Egg Engine (Optimized)
         task.spawn(function()
             while true do
-                task.wait(0.05)
+                task.wait(0.2)
                 if AutoStealEgg then
-                    for _, v in ipairs(game:GetDescendants()) do
-                        if v:IsA("RemoteEvent") then
-                            local rName = v.Name:lower()
-                            if rName:find("steal") or rName:find("egg") or rName:find("take") or rName:find("grab") or rName:find("collect") then
-                                pcall(function() v:FireServer() end)
-                            end
-                        end
+                    for _, remote in ipairs(StealRemotes) do
+                        pcall(function() remote:FireServer() end)
                     end
-                    
                     for _, prompt in ipairs(workspace:GetDescendants()) do
                         if prompt:IsA("ProximityPrompt") then
                             pcall(function()
                                 prompt.HoldDuration = 0
-                                prompt.RequiresLineOfSight = false
                                 prompt.MaxActivationDistance = 9999
                                 fireproximityprompt(prompt)
                             end)
@@ -168,29 +169,15 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 4. NEW ALL-REMOTE SPEED FARM ENGINE (v17 Update)
+        -- 4. ULTRA SPEED FARM ENGINE (Optimized No-Lag)
         task.spawn(function()
             while true do
-                task.wait(0.02)
+                task.wait(0.1)
                 if UltraFast100B then
-                    -- វិធីទី១៖ បាញ់ Remotes ទាំងអស់ដែលពាក់ព័ន្ធនឹង Speed / Add / Train / Walk
-                    for _, v in ipairs(game:GetDescendants()) do
-                        if v:IsA("RemoteEvent") then
-                            local name = v.Name:lower()
-                            if name:find("speed") or name:find("add") or name:find("train") or name:find("walk") or name:find("step") or name:find("click") or name:find("treadmill") or name:find("gain") then
-                                pcall(function()
-                                    v:FireServer()
-                                    v:FireServer(100)
-                                    v:FireServer(true)
-                                end)
-                            end
-                        end
-                    end
-
-                    -- វិធីទី២៖ ធ្វើ Simulated Movement (ដើរអង្រួនខ្លួន) ដើម្បីឱ្យ Server គណនា Speed
-                    local char, hrp, hum = getAliveCharacter()
-                    if char and hrp and hum then
-                        hum:Move(Vector3.new(math.random(-1, 1), 0, math.random(-1, 1)), true)
+                    for _, remote in ipairs(SpeedRemotes) do
+                        pcall(function()
+                            remote:FireServer()
+                        end)
                     end
                 end
             end
@@ -199,38 +186,21 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
         -- 5. Treadmill Engine
         task.spawn(function()
             while true do
-                task.wait(0.05)
+                task.wait(0.1)
                 if AutoTreadmill then
                     local char, hrp, hum = getAliveCharacter()
                     if char and hrp and hum then
-                        local speedMult = Treadmill5x and 150 or 30
+                        local speedMult = Treadmill5x and 100 or 30
                         hrp.AssemblyLinearVelocity = hrp.CFrame.LookVector * speedMult
                     end
                 end
             end
         end)
 
-        -- 6. Treadmill 5x Remote Multiplier Loop
+        -- 6. ESP Loop
         task.spawn(function()
             while true do
-                task.wait(0.05)
-                if Treadmill5x or SafeFarmStep then
-                    local loops = Treadmill5x and 5 or 1
-                    for i = 1, loops do
-                        for _, v in ipairs(game:GetDescendants()) do
-                            if v:IsA("RemoteEvent") and (v.Name:lower():find("step") or v.Name:lower():find("treadmill") or v.Name:lower():find("speed")) then
-                                pcall(function() v:FireServer() end)
-                            end
-                        end
-                    end
-                end
-            end
-        end)
-
-        -- 7. ESP Loop
-        task.spawn(function()
-            while true do
-                task.wait(0.5)
+                task.wait(1)
                 if ESPEnabled then
                     for _, p in ipairs(Players:GetPlayers()) do
                         if p ~= LocalPlayer and p.Character and not p.Character:FindFirstChild("Highlight") then
