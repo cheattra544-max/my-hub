@@ -7,7 +7,7 @@ local KeyVerified = false
 local FastSpeed = false
 local SpeedValue = 50
 local AutoStealEgg = false
-local MonsterNoHit = false
+local MonsterGodmode = false
 local ESPEnabled = false
 local AutoTreadmill = false
 local SafeFarmStep = false
@@ -37,16 +37,16 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
         KeyVerified = true
         StarterGui:SetCore("SendNotification", {Title = "Success!", Text = "Key ត្រឹមត្រូវ! មុខងារ VIP បើករួច។", Duration = 3})
 
-        -- TAB 1: EGG & PROTECTION (NEW)
+        -- TAB 1: EGG & PROTECTION
         local ProtectTab = Window:NewTab("🥚 Steal & Protection")
-        local ProtectSec = ProtectTab:NewSection("🛡️ Monster & Egg Features")
+        local ProtectSec = ProtectTab:NewSection("🛡️ True Monster Godmode")
         
-        ProtectSec:NewToggle("Auto Steal Egg (លួចពងស្វ័យប្រវត្តិ)", "ដើរជិតពងលួចយកភ្លាមៗ", function(state)
+        ProtectSec:NewToggle("Auto Steal Egg (លួចពងស្វ័យប្រវត្តិ)", "ដើរជិតពងលួចយកភ្លាមៗ (មិនលោត UI)", function(state)
             AutoStealEgg = state
         end)
 
-        ProtectSec:NewToggle("Monster Anti-Hit (មេខាំមិនត្រូវ)", "ការពារ Monster/មេ វាយ ឬខាំមិនត្រូវ", function(state)
-            MonsterNoHit = state
+        ProtectSec:NewToggle("Monster Godmode (មេវាយមិនត្រូវ 100%)", "បង្កក Hitbox/បិទ Touch Interest របស់មេ", function(state)
+            MonsterGodmode = state
         end)
 
         -- TAB 2: FARM FEATURES
@@ -106,29 +106,66 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 2. Monster Anti-Hit Loop (ការពារមេខាំមិនត្រូវ)
+        -- 2. True Monster Godmode Engine
         RunService.Stepped:Connect(function()
-            if MonsterNoHit then
+            if MonsterGodmode then
                 for _, v in ipairs(workspace:GetDescendants()) do
-                    if v:IsA("Model") and (v.Name:lower():find("monster") or v.Name:lower():find("boss") or v.Name:lower():find("guard")) then
-                        for _, part in ipairs(v:GetChildren()) do
-                            if part:IsA("BasePart") then
-                                part.CanCollide = false
-                            end
+                    if v:IsA("TouchTransmitter") or v:IsA("TouchInterest") then
+                        local parentName = v.Parent and v.Parent.Name:lower() or ""
+                        local grandParentName = v.Parent and v.Parent.Parent and v.Parent.Parent.Name:lower() or ""
+                        if parentName:find("monster") or parentName:find("boss") or parentName:find("hitbox") or grandParentName:find("monster") or grandParentName:find("boss") then
+                            v:Destroy()
+                        end
+                    end
+                end
+                
+                local char = getAliveCharacter()
+                if char then
+                    for _, part in ipairs(char:GetChildren()) do
+                        if part:IsA("BasePart") then
+                            part.CanTouch = false
                         end
                     end
                 end
             end
         end)
 
-        -- 3. Auto Steal Egg Loop (លួចពងស្វ័យប្រវត្តិ)
+        -- 3. Filtered Auto Steal Egg (ចុចតែលើពងសត្វ + Auto Close Popups)
         task.spawn(function()
             while true do
                 task.wait(0.1)
+                
+                -- បិទ Popups UI Event ដែលលោតមកលើអេក្រង់ស្វ័យប្រវត្តិ
+                local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
+                if playerGui then
+                    for _, gui in ipairs(playerGui:GetChildren()) do
+                        if gui:IsA("ScreenGui") then
+                            for _, btn in ipairs(gui:GetDescendants()) do
+                                if btn:IsA("TextButton") or btn:IsA("ImageButton") then
+                                    if btn.Name:lower() == "ok" or btn.Text:lower() == "ok!" or btn.Name:lower() == "close" then
+                                        pcall(function()
+                                            if btn.Visible and btn.Parent and btn.Parent.Visible then
+                                                gui.Enabled = false
+                                            end
+                                        end)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+
+                -- ចុច Steal តែលើ ProximityPrompt របស់ Egg ប៉ុណ្ណោះ
                 if AutoStealEgg then
                     for _, prompt in ipairs(workspace:GetDescendants()) do
                         if prompt:IsA("ProximityPrompt") then
-                            fireproximityprompt(prompt)
+                            local pName = prompt.Parent and prompt.Parent.Name:lower() or ""
+                            local pAction = prompt.ActionText:lower()
+                            local pObject = prompt.ObjectText:lower()
+
+                            if pName:find("egg") or pAction:find("steal") or pObject:find("egg") or pAction:find("take") then
+                                fireproximityprompt(prompt)
+                            end
                         end
                     end
                 end
@@ -148,7 +185,7 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 5. Safe Step Multiplier (កើន Step លឿនស្មើរ មិន Crash)
+        -- 5. Safe Step Multiplier
         task.spawn(function()
             while true do
                 task.wait(0.05)
