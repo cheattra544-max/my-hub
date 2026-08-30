@@ -1,23 +1,53 @@
 local CorrectKey = "CHEATTRA-VIP-2026"
-local EnteredKey = ""
 
-local KeyLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local KeyWindow = KeyLibrary.CreateLib("🔑 Cheattra Hub - Key System", "Midnight")
-local KeyTab = KeyWindow:NewTab("Key Verification")
-local KeySec = KeyTab:NewSection("Enter Your Key Below")
+-- ផ្ទាំងទារ Key ងាយស្រួល និងដំណើរការ ១០០%
+local KeyInput = game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "🔑 CHEATTRA HUB",
+    Text = "សូមវាយ Key ក្នុង Chat ឬប្រើប្រអប់ខាងក្រោម",
+    Duration = 5
+})
 
--- ប្រអប់សម្រាប់វាយ Key
-KeySec:NewTextBox("Enter Key", "Paste your Key here", function(txt)
-    EnteredKey = txt
-end)
+-- បង្កើត UI វាយ Key
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local TextBox = Instance.new("TextBox")
+local SubmitBtn = Instance.new("TextButton")
+local Title = Instance.new("TextLabel")
 
--- ប៊ូតុងសម្រាប់ចុចផ្ទៀងផ្ទាត់ Key
-KeySec:NewButton("Submit Key (ចុចដើម្បីផ្ទៀងផ្ទាត់)", "Check Key", function()
-    if EnteredKey == CorrectKey then
-        -- លុបផ្ទាំង Key System ចោល
-        game:GetService("CoreGui"):FindFirstChild("KavoUI"):Destroy()
+ScreenGui.Parent = game:GetService("CoreGui")
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+Frame.Position = UDim2.new(0.35, 0, 0.35, 0)
+Frame.Size = UDim2.new(0, 300, 0, 150)
+Frame.Active = true
+Frame.Draggable = true
+
+Title.Parent = Frame
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.Text = "🔑 Cheattra Hub - Key Verification"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+
+TextBox.Parent = Frame
+TextBox.Position = UDim2.new(0.1, 0, 0.35, 0)
+TextBox.Size = UDim2.new(0.8, 0, 0.25, 0)
+TextBox.PlaceholderText = "Paste Key Here..."
+TextBox.Text = ""
+TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextBox.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+
+SubmitBtn.Parent = Frame
+SubmitBtn.Position = UDim2.new(0.2, 0, 0.7, 0)
+SubmitBtn.Size = UDim2.new(0.6, 0, 0.2, 0)
+SubmitBtn.Text = "SUBMIT KEY"
+SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+
+SubmitBtn.MouseButton1Click:Connect(function()
+    if TextBox.Text == CorrectKey then
+        ScreenGui:Destroy() -- បិទផ្ទាំង Key វិញ
         
-        -- ==================== ដំណើរការ MAIN HUB ====================
+        -- ==================== MAIN VIP HUB ====================
         local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
         local Window = Library.CreateLib("🔥 Cheattra VIP Hub (Egg Steal Edition) 🔥", "Midnight")
 
@@ -76,11 +106,10 @@ KeySec:NewButton("Submit Key (ចុចដើម្បីផ្ទៀងផ្�
             game.Players.LocalPlayer.Character.Humanoid.JumpPower = s
         end)
     else
-        -- បើវាយ Key ខុស វានឹងលោតសារប្រាប់
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "Key Error!",
-            Text = "Key មិនត្រឹមត្រូវទេ! សូមពិនិត្យមើលឡើងវិញ។",
-            Duration = 3
-        })
+        SubmitBtn.Text = "KEY WRONG! TRY AGAIN"
+        SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+        task.wait(1.5)
+        SubmitBtn.Text = "SUBMIT KEY"
+        SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
     end
 end)
