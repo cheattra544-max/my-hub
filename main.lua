@@ -6,12 +6,11 @@ local Window = Library.CreateLib("🔥 Cheattra VIP Hub | Steal An Egg 🔥", "M
 local KeyVerified = false
 local FastSpeed = false
 local SpeedValue = 50
-local AutoEvadeDistance = false
-local AutoSteal = false
-local EvadeRange = 12
+local AutoStealEgg = false
+local MonsterNoHit = false
 local ESPEnabled = false
 local AutoTreadmill = false
-local UltraFarmMax = false
+local SafeFarmStep = false
 
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
@@ -38,19 +37,31 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
         KeyVerified = true
         StarterGui:SetCore("SendNotification", {Title = "Success!", Text = "Key ត្រឹមត្រូវ! មុខងារ VIP បើករួច។", Duration = 3})
 
-        -- TAB 1: FARM FEATURES
+        -- TAB 1: EGG & PROTECTION (NEW)
+        local ProtectTab = Window:NewTab("🥚 Steal & Protection")
+        local ProtectSec = ProtectTab:NewSection("🛡️ Monster & Egg Features")
+        
+        ProtectSec:NewToggle("Auto Steal Egg (លួចពងស្វ័យប្រវត្តិ)", "ដើរជិតពងលួចយកភ្លាមៗ", function(state)
+            AutoStealEgg = state
+        end)
+
+        ProtectSec:NewToggle("Monster Anti-Hit (មេខាំមិនត្រូវ)", "ការពារ Monster/មេ វាយ ឬខាំមិនត្រូវ", function(state)
+            MonsterNoHit = state
+        end)
+
+        -- TAB 2: FARM FEATURES
         local FarmTab = Window:NewTab("🌾 Farm Features")
-        local FarmSec = FarmTab:NewSection("🏋️ Max Speed Treadmill Farm")
+        local FarmSec = FarmTab:NewSection("🏋️ Safe Treadmill Farm")
         
         FarmSec:NewToggle("Auto Treadmill (រត់លើម៉ាស៊ីន)", "ដើររត់លើម៉ាស៊ីនរត់ស្វ័យប្រវត្តិ", function(state)
             AutoTreadmill = state
         end)
 
-        FarmSec:NewToggle("🔥 ULTRA FAST STEP (កើនលឿនខ្លាំង)", "Spam បាញ់ Remote កើន Step 100K-1M លឿនបំផុត", function(state)
-            UltraFarmMax = state
+        FarmSec:NewToggle("Safe Step Farm (កើន Step មិន Crash)", "កើន Step លឿន និងមានសុវត្ថិភាព", function(state)
+            SafeFarmStep = state
         end)
 
-        -- TAB 2: MAIN FEATURES
+        -- TAB 3: MAIN FEATURES
         local MainTab = Window:NewTab("Main Features")
         local SpeedSec = MainTab:NewSection("⚡ Super Speed (No-Crash & Bypass)")
         
@@ -60,11 +71,7 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             if num then SpeedValue = num end
         end)
 
-        local AutoSec = MainTab:NewSection("Auto Features")
-        AutoSec:NewToggle("Auto Dodge Player/Monster", "តេឡេពតគេចខ្លួន", function(state) AutoEvadeDistance = state end)
-        AutoSec:NewToggle("Auto Fire Proximity Prompts", "លួចពងស្វ័យប្រវត្តិ", function(state) AutoSteal = state end)
-
-        -- TAB 3: VISUALS
+        -- TAB 4: VISUALS
         local VisualTab = Window:NewTab("Visuals / ESP")
         VisualTab:NewSection("Player ESP"):NewToggle("Enable Player ESP", "មើលឃើញ Player តាមជញ្ជាំង", function(state)
             ESPEnabled = state
@@ -77,7 +84,7 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- TAB 4: SETTINGS
+        -- TAB 5: SETTINGS
         local ExtraTab = Window:NewTab("Player Settings")
         ExtraTab:NewSection("Jump Settings"):NewTextBox("Set Jump Power", "វាយកម្ពស់លោត", function(txt)
             local num = tonumber(txt)
@@ -88,7 +95,7 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 1. Movement Speed Loop
+        -- 1. Movement Speed Engine
         RunService.Heartbeat:Connect(function()
             if FastSpeed then
                 local char, hrp, hum = getAliveCharacter()
@@ -99,54 +106,14 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 2. Auto Treadmill Movement
-        task.spawn(function()
-            while true do
-                task.wait(0.01)
-                if AutoTreadmill then
-                    local char, hrp, hum = getAliveCharacter()
-                    if char and hrp and hum then
-                        hrp.AssemblyLinearVelocity = hrp.CFrame.LookVector * 40
-                    end
-                end
-            end
-        end)
-
-        -- 3. ULTRA FAST STEP SPAMMER (កើន Step លឿនបំផុតតាមស្រទាប់ Multi-Threads)
-        task.spawn(function()
-            while true do
-                task.wait()
-                if UltraFarmMax then
-                    for i = 1, 20 do -- បាញ់ Remote ២០ ដងក្នុងពេលតែមួយត្រឹមមួយព្រិចភ្នែក
-                        task.spawn(function()
-                            for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
-                                if v:IsA("RemoteEvent") then
-                                    pcall(function() v:FireServer() end)
-                                end
-                            end
-                        end)
-                    end
-                end
-            end
-        end)
-
-        -- 4. Auto Evade Loop
-        task.spawn(function()
-            while true do
-                task.wait(0.2)
-                if AutoEvadeDistance then
-                    local char, myHrp = getAliveCharacter()
-                    if char and myHrp then
-                        for _, p in ipairs(Players:GetPlayers()) do
-                            if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                                local targetHum = p.Character:FindFirstChildOfClass("Humanoid")
-                                if targetHum and targetHum.Health > 0 then
-                                    if (myHrp.Position - p.Character.HumanoidRootPart.Position).Magnitude <= EvadeRange then
-                                        myHrp.CFrame = myHrp.CFrame + Vector3.new(0, 15, 0)
-                                        task.wait(1.5)
-                                        break
-                                    end
-                                end
+        -- 2. Monster Anti-Hit Loop (ការពារមេខាំមិនត្រូវ)
+        RunService.Stepped:Connect(function()
+            if MonsterNoHit then
+                for _, v in ipairs(workspace:GetDescendants()) do
+                    if v:IsA("Model") and (v.Name:lower():find("monster") or v.Name:lower():find("boss") or v.Name:lower():find("guard")) then
+                        for _, part in ipairs(v:GetChildren()) do
+                            if part:IsA("BasePart") then
+                                part.CanCollide = false
                             end
                         end
                     end
@@ -154,13 +121,42 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 5. Auto Steal Loop
+        -- 3. Auto Steal Egg Loop (លួចពងស្វ័យប្រវត្តិ)
         task.spawn(function()
             while true do
-                task.wait(0.2)
-                if AutoSteal then
+                task.wait(0.1)
+                if AutoStealEgg then
                     for _, prompt in ipairs(workspace:GetDescendants()) do
-                        if prompt:IsA("ProximityPrompt") then fireproximityprompt(prompt) end
+                        if prompt:IsA("ProximityPrompt") then
+                            fireproximityprompt(prompt)
+                        end
+                    end
+                end
+            end
+        end)
+
+        -- 4. Safe Treadmill Farm Loop
+        task.spawn(function()
+            while true do
+                task.wait(0.05)
+                if AutoTreadmill then
+                    local char, hrp, hum = getAliveCharacter()
+                    if char and hrp and hum then
+                        hrp.AssemblyLinearVelocity = hrp.CFrame.LookVector * 30
+                    end
+                end
+            end
+        end)
+
+        -- 5. Safe Step Multiplier (កើន Step លឿនស្មើរ មិន Crash)
+        task.spawn(function()
+            while true do
+                task.wait(0.05)
+                if SafeFarmStep then
+                    for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
+                        if v:IsA("RemoteEvent") and (v.Name:lower():find("step") or v.Name:lower():find("treadmill")) then
+                            pcall(function() v:FireServer() end)
+                        end
                     end
                 end
             end
