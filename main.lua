@@ -12,6 +12,7 @@ local ESPEnabled = false
 local AutoTreadmill = false
 local Treadmill5x = false
 local SafeFarmStep = false
+local UltraFast100B = false
 
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
@@ -42,7 +43,7 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
         local ProtectTab = Window:NewTab("🥚 Steal & Protection")
         local ProtectSec = ProtectTab:NewSection("🛡️ True Monster Godmode")
         
-        ProtectSec:NewToggle("Auto Steal Egg (លួចពងស្វ័យប្រវត្តិ)", "បើកលួចពងសត្វក្នុង Map ភ្លាមៗ", function(state)
+        ProtectSec:NewToggle("Auto Steal Egg (លួចពងស្វ័យប្រវត្តិ)", "លួចពងសត្វតាម Remote & Prompt", function(state)
             AutoStealEgg = state
         end)
 
@@ -52,8 +53,12 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
 
         -- TAB 2: FARM FEATURES
         local FarmTab = Window:NewTab("🌾 Farm Features")
-        local FarmSec = FarmTab:NewSection("🏋️ Treadmill Farm Engine")
+        local FarmSec = FarmTab:NewSection("🏋️ Speed / Step Farm Engine")
         
+        FarmSec:NewToggle("⚡ ULTRA SPEED FARM (រុញទៅ 100B)", "កើន Speed/Step ក្នុងល្បឿនលឿនបំផុត", function(state)
+            UltraFast100B = state
+        end)
+
         FarmSec:NewToggle("Auto Treadmill (រត់លើម៉ាស៊ីន)", "ដើររត់លើម៉ាស៊ីនរត់ស្វ័យប្រវត្តិ", function(state)
             AutoTreadmill = state
         end)
@@ -135,19 +140,28 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 3. Super Instant Auto Steal Engine (v14 Update)
+        -- 3. Advanced Auto Steal Egg Engine
         task.spawn(function()
             while true do
-                task.wait(0.01)
+                task.wait(0.05)
                 if AutoStealEgg then
+                    for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
+                        if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+                            local rName = v.Name:lower()
+                            if rName:find("steal") or rName:find("egg") or rName:find("take") or rName:find("grab") or rName:find("collect") then
+                                pcall(function()
+                                    if v:IsA("RemoteEvent") then v:FireServer() end
+                                end)
+                            end
+                        end
+                    end
+                    
                     for _, prompt in ipairs(workspace:GetDescendants()) do
                         if prompt:IsA("ProximityPrompt") then
-                            -- បង្ខំលុបចម្ងាយ និង Hold Time របស់ Prompt ទាំងអស់
-                            prompt.HoldDuration = 0
-                            prompt.MaxActivationDistance = 50
-                            
-                            -- ចុច Trigger ភ្លាមៗដោយមិនបាច់រង់ចាំ
                             pcall(function()
+                                prompt.HoldDuration = 0
+                                prompt.RequiresLineOfSight = false
+                                prompt.MaxActivationDistance = 9999
                                 fireproximityprompt(prompt)
                             end)
                         end
@@ -156,7 +170,26 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 4. Treadmill Engine
+        -- 4. ULTRA FAST SPEED/STEP FARM ENGINE (100B TARGET)
+        task.spawn(function()
+            while true do
+                task.wait(0.01)
+                if UltraFast100B then
+                    for i = 1, 20 do
+                        for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
+                            if v:IsA("RemoteEvent") then
+                                local name = v.Name:lower()
+                                if name:find("step") or name:find("treadmill") or name:find("addspeed") or name:find("speed") or name:find("walk") then
+                                    pcall(function() v:FireServer() end)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+
+        -- 5. Treadmill Engine
         task.spawn(function()
             while true do
                 task.wait(0.05)
@@ -170,7 +203,7 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 5. Treadmill 5x Remote Multiplier Loop
+        -- 6. Treadmill 5x Remote Multiplier Loop
         task.spawn(function()
             while true do
                 task.wait(0.05)
@@ -187,7 +220,7 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 6. ESP Loop
+        -- 7. ESP Loop
         task.spawn(function()
             while true do
                 task.wait(0.5)
