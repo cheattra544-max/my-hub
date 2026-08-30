@@ -10,6 +10,7 @@ local AutoStealEgg = false
 local MonsterGodmode = false
 local ESPEnabled = false
 local AutoTreadmill = false
+local Treadmill5x = false
 local SafeFarmStep = false
 
 local Players = game:GetService("Players")
@@ -41,7 +42,7 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
         local ProtectTab = Window:NewTab("🥚 Steal & Protection")
         local ProtectSec = ProtectTab:NewSection("🛡️ True Monster Godmode")
         
-        ProtectSec:NewToggle("Auto Steal Egg (លួចពងស្វ័យប្រវត្តិ)", "ដើរជិតពងលួចយកភ្លាមៗ (មិនលោត UI)", function(state)
+        ProtectSec:NewToggle("Auto Steal Egg (លួចពងស្វ័យប្រវត្តិ)", "បើកលួចពងសត្វគ្រប់ប្រភេទ", function(state)
             AutoStealEgg = state
         end)
 
@@ -51,10 +52,14 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
 
         -- TAB 2: FARM FEATURES
         local FarmTab = Window:NewTab("🌾 Farm Features")
-        local FarmSec = FarmTab:NewSection("🏋️ Safe Treadmill Farm")
+        local FarmSec = FarmTab:NewSection("🏋️ Treadmill Farm Engine")
         
         FarmSec:NewToggle("Auto Treadmill (រត់លើម៉ាស៊ីន)", "ដើររត់លើម៉ាស៊ីនរត់ស្វ័យប្រវត្តិ", function(state)
             AutoTreadmill = state
+        end)
+
+        FarmSec:NewToggle("Treadmill 5x Boost (គុណ៥ លើម៉ាស៊ីនរត់)", "បង្កើនល្បឿន និង Step គុណនឹង ៥", function(state)
+            Treadmill5x = state
         end)
 
         FarmSec:NewToggle("Safe Step Farm (កើន Step មិន Crash)", "កើន Step លឿន និងមានសុវត្ថិភាព", function(state)
@@ -130,19 +135,18 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 3. Filtered Auto Steal Egg (ចុចតែលើពងសត្វ + Auto Close Popups)
+        -- 3. Instant Auto Steal Engine
         task.spawn(function()
             while true do
-                task.wait(0.1)
+                task.wait(0.05)
                 
-                -- បិទ Popups UI Event ដែលលោតមកលើអេក្រង់ស្វ័យប្រវត្តិ
                 local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
                 if playerGui then
                     for _, gui in ipairs(playerGui:GetChildren()) do
-                        if gui:IsA("ScreenGui") then
+                        if gui:IsA("ScreenGui") and gui.Name ~= "Kavo-UI" then
                             for _, btn in ipairs(gui:GetDescendants()) do
                                 if btn:IsA("TextButton") or btn:IsA("ImageButton") then
-                                    if btn.Name:lower() == "ok" or btn.Text:lower() == "ok!" or btn.Name:lower() == "close" then
+                                    if btn.Name:lower() == "ok" or btn.Text:lower() == "ok!" then
                                         pcall(function()
                                             if btn.Visible and btn.Parent and btn.Parent.Visible then
                                                 gui.Enabled = false
@@ -155,44 +159,42 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
                     end
                 end
 
-                -- ចុច Steal តែលើ ProximityPrompt របស់ Egg ប៉ុណ្ណោះ
                 if AutoStealEgg then
                     for _, prompt in ipairs(workspace:GetDescendants()) do
                         if prompt:IsA("ProximityPrompt") then
-                            local pName = prompt.Parent and prompt.Parent.Name:lower() or ""
-                            local pAction = prompt.ActionText:lower()
-                            local pObject = prompt.ObjectText:lower()
-
-                            if pName:find("egg") or pAction:find("steal") or pObject:find("egg") or pAction:find("take") then
-                                fireproximityprompt(prompt)
-                            end
+                            prompt.HoldDuration = 0
+                            fireproximityprompt(prompt)
                         end
                     end
                 end
             end
         end)
 
-        -- 4. Safe Treadmill Farm Loop
+        -- 4. Treadmill Engine (មានបន្ថែម 5x Boost)
         task.spawn(function()
             while true do
                 task.wait(0.05)
                 if AutoTreadmill then
                     local char, hrp, hum = getAliveCharacter()
                     if char and hrp and hum then
-                        hrp.AssemblyLinearVelocity = hrp.CFrame.LookVector * 30
+                        local speedMult = Treadmill5x and 150 or 30
+                        hrp.AssemblyLinearVelocity = hrp.CFrame.LookVector * speedMult
                     end
                 end
             end
         end)
 
-        -- 5. Safe Step Multiplier
+        -- 5. Treadmill 5x Remote Multiplier Loop
         task.spawn(function()
             while true do
                 task.wait(0.05)
-                if SafeFarmStep then
-                    for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
-                        if v:IsA("RemoteEvent") and (v.Name:lower():find("step") or v.Name:lower():find("treadmill")) then
-                            pcall(function() v:FireServer() end)
+                if Treadmill5x or SafeFarmStep then
+                    local loops = Treadmill5x and 5 or 1
+                    for i = 1, loops do
+                        for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
+                            if v:IsA("RemoteEvent") and (v.Name:lower():find("step") or v.Name:lower():find("treadmill")) then
+                                pcall(function() v:FireServer() end)
+                            end
                         end
                     end
                 end
