@@ -11,7 +11,7 @@ local AutoSteal = false
 local EvadeRange = 12
 local ESPEnabled = false
 local AutoTreadmill = false
-local FastFarm100K = false
+local UltraFarmMax = false
 
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
@@ -38,16 +38,16 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
         KeyVerified = true
         StarterGui:SetCore("SendNotification", {Title = "Success!", Text = "Key ត្រឹមត្រូវ! មុខងារ VIP បើករួច។", Duration = 3})
 
-        -- TAB 1: FARM FEATURES (NEW)
+        -- TAB 1: FARM FEATURES
         local FarmTab = Window:NewTab("🌾 Farm Features")
-        local FarmSec = FarmTab:NewSection("🏋️ Auto Treadmill & Multiplier")
+        local FarmSec = FarmTab:NewSection("🏋️ Max Speed Treadmill Farm")
         
         FarmSec:NewToggle("Auto Treadmill (រត់លើម៉ាស៊ីន)", "ដើររត់លើម៉ាស៊ីនរត់ស្វ័យប្រវត្តិ", function(state)
             AutoTreadmill = state
         end)
 
-        FarmSec:NewToggle("Fast Step Multiplier 100K", "Spam កើន Step លឿនខ្លាំង", function(state)
-            FastFarm100K = state
+        FarmSec:NewToggle("🔥 ULTRA FAST STEP (កើនលឿនខ្លាំង)", "Spam បាញ់ Remote កើន Step 100K-1M លឿនបំផុត", function(state)
+            UltraFarmMax = state
         end)
 
         -- TAB 2: MAIN FEATURES
@@ -59,8 +59,6 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             local num = tonumber(txt)
             if num then SpeedValue = num end
         end)
-        SpeedSec:NewButton("Speed: 40 (Legit Fast)", "រត់លឿនល្មម", function() SpeedValue = 40 end)
-        SpeedSec:NewButton("Speed: 70 (Super Fast)", "រត់លឿនខ្លាំង", function() SpeedValue = 70 end)
 
         local AutoSec = MainTab:NewSection("Auto Features")
         AutoSec:NewToggle("Auto Dodge Player/Monster", "តេឡេពតគេចខ្លួន", function(state) AutoEvadeDistance = state end)
@@ -101,30 +99,32 @@ KeyTab:NewSection("Enter Your Key Below"):NewTextBox("Enter Key", "Paste key & p
             end
         end)
 
-        -- 2. Auto Treadmill Loop (បង្ខំឱ្យតួអង្គដើរលើម៉ាស៊ីន)
+        -- 2. Auto Treadmill Movement
         task.spawn(function()
             while true do
-                task.wait(0.05)
+                task.wait(0.01)
                 if AutoTreadmill then
                     local char, hrp, hum = getAliveCharacter()
                     if char and hrp and hum then
-                        -- រុញតួអង្គឱ្យរត់ទៅមុខលើ Treadmill
-                        hrp.AssemblyLinearVelocity = hrp.CFrame.LookVector * 25
+                        hrp.AssemblyLinearVelocity = hrp.CFrame.LookVector * 40
                     end
                 end
             end
         end)
 
-        -- 3. Fast Step Multiplier 100K Remote Loop
+        -- 3. ULTRA FAST STEP SPAMMER (កើន Step លឿនបំផុតតាមស្រទាប់ Multi-Threads)
         task.spawn(function()
             while true do
-                task.wait(0.01)
-                if FastFarm100K then
-                    -- បាញ់ Remote Events ទាំងអស់ក្នុង ReplicatedStorage ដើម្បីកើន Step ស្វ័យប្រវត្តិ
-                    for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
-                        if v:IsA("RemoteEvent") and (v.Name:lower():find("step") or v.Name:lower():find("treadmill") or v.Name:lower():find("add")) then
-                            pcall(function() v:FireServer() end)
-                        end
+                task.wait()
+                if UltraFarmMax then
+                    for i = 1, 20 do -- បាញ់ Remote ២០ ដងក្នុងពេលតែមួយត្រឹមមួយព្រិចភ្នែក
+                        task.spawn(function()
+                            for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
+                                if v:IsA("RemoteEvent") then
+                                    pcall(function() v:FireServer() end)
+                                end
+                            end
+                        end)
                     end
                 end
             end
